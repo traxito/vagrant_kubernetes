@@ -1,17 +1,25 @@
 #!/bin/bash
-sudo yum install epel-release bash-completion tree wget curl -y
+#install utils and Docker
+sudo yum install epel-release bash-completion tree wget curl sftp python-argcomplete yum-utils -y
+ sudo yum-config-manager \
+    --add-repo \
+    https://download.docker.com/linux/centos/docker-ce.repo
 systemctl stop firewalld
 systemctl disable firewalld
-#install containerd
-cat <<EOF | sudo tee /etc/modules-load.d/containerd.conf
-overlay
-br_netfilter
-EOF
-sudo modprobe overlay
-sudo modprobe br_netfilter
-sudo mkdir -p /etc/containerd
-containerd config default | sudo tee /etc/containerd/config.toml
-sudo systemctl restart containerd
+sudo yum install docker-ce docker-ce-cli containerd.io
+sudo systemctl start docker
+systemctl stop firewalld
+systemctl disable firewalld
+#install containerd (prepared for when the installation is automated detected for Kubeadm)
+#cat <<EOF | sudo tee /etc/modules-load.d/containerd.conf
+#overlay
+#br_netfilter
+#EOF
+#sudo modprobe overlay
+#sudo modprobe br_netfilter
+#sudo mkdir -p /etc/containerd
+#containerd config default | sudo tee /etc/containerd/config.toml
+#sudo systemctl restart containerd
 #set up kubernetes installation
 cat <<EOF | sudo tee /etc/yum.repos.d/kubernetes.repo
 [kubernetes]
