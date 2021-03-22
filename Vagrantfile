@@ -21,7 +21,7 @@ end
 config.vm.define "kube-master" do |app|
 	config.vm.boot_timeout = 400
   #config.vm.synced_folder ".", "/vagrant"
-    app.vm.hostname = "master-ansible"
+    app.vm.hostname = "kube-master"
   # on VirtualBox, you can uncomment this line  
     app.vm.network "private_network", ip: "192.168.33.10"
     app.vm.provision "shell", path: "provision.sh"
