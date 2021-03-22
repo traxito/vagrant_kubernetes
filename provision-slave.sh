@@ -2,13 +2,39 @@
 sudo yum install epel-release bash-completion tree wget curl -y
 systemctl stop firewalld
 systemctl disable firewalld
+#install containerd
+cat <<EOF | sudo tee /etc/modules-load.d/containerd.conf
+overlay
+br_netfilter
+EOF
+sudo modprobe overlay
+sudo modprobe br_netfilter
+sudo mkdir -p /etc/containerd
+containerd config default | sudo tee /etc/containerd/config.toml
+sudo systemctl restart containerd
+#set up kubernetes installation
+cat <<EOF | sudo tee /etc/yum.repos.d/kubernetes.repo
+[kubernetes]
+name=Kubernetes
+baseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-\$basearch
+enabled=1
+gpgcheck=1
+repo_gpgcheck=1
+gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+exclude=kubelet kubeadm kubectl
+EOF
+# Set SELinux in permissive mode (effectively disabling it)
+sudo setenforce 0
 sed -i 's/^SELINUX=.*/SELINUX=disabled/g' /etc/selinux/config
-sudo yum install ansible git -y
+#Make sure that the br_netfilter module is loaded
+sudo modprobe br_netfilter
+sudo yum install -y git kubelet kubeadm kubectl --disableexcludes=kubernetes
+sudo systemctl enable --now kubelet
 cd /root
-git clone https://github.com/traxito/vagrant_ansible
+git clone https://github.com/traxito/vagrant_kubernetes
 #cp -r /redis_vagrant/provision/authorized_keys /root/.ssh
 mkdir -p /root/.ssh
-cp /root/vagrant_ansible/provision/id_rsa.pub /root/.ssh
-cp /root/vagrant_ansible/provision/authorized_keys /root/.ssh
-cp /root/vagrant_ansible/provision/sudoers /etc
-cp /root/vagrant_ansible/provision/hosts /etc/
+cp /root/vagrant_kubernetes/id_rsa.pub /root/.ssh
+cp /root/vagrant_kubernetes/authorized_keys /root/.ssh
+cp /root/vagrant_kubernetes/sudoers /etc
+cp /root/vagrant_kubernetes/hosts /etc/
