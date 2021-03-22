@@ -1,0 +1,13 @@
+#[all:vars]
+#ansible_ssh_pass=vagrant
+
+#[redis]
+#192.168.33.10 ansible_hostname=r1 ansible_connection=local package=ftp
+#192.168.33.11 ansible_hostname=r2
+#192.168.33.12 ansible_hostname=r3
+
+#add the ip's from nodes, main host is automatically filled
+[mired]
+
+
+
